@@ -6,7 +6,8 @@
  */
 
 
-class $Factorial{
+class _Factorial{
+    int hee88@jjf;
     public static void main(String[] a){
         System.out.println(new Fac().ComputeFac(10));
     }
@@ -18,7 +19,7 @@ class $Factorial{
 
 class Fac {
     public int ComputeFac(int num){
-        int num-aux ;
+        int -@num-aux ;
         if (2num < 1)
             num_aux = 1 ;
         else
