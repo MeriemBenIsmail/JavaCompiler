@@ -1,7 +1,16 @@
 %{
+     #include <stdio.h>
+     #include <stdlib.h>
+     #include <string.h>
+     #include "syntax_analyser.tab.h"
+     #include <math.h>
+
+     #define YYSTYPE char*
+
      int line = 1;
 %}
 
+%option yylineno
 delim                                   ([ \t]|(" "))
 bl                                      {delim}+
 bl0                                     {delim}*
@@ -11,10 +20,10 @@ lettre                                  [a-zA-Z]
 
 openParentheses                         (\()
 closeParentheses                        (\))
-openSquareBrackets                      (\[)
-closeSquareBrackets                     (\])
-openBraces                              (\{)
-closeBraces                             (\})
+openSquareBrackets                      (\{)
+closeSquareBrackets                     (\})
+openBraces                              (\[)
+closeBraces                             (\])
 COMMENT_LINE                            "//"
 
 identifier                              ([A-Za-z_][A-Za-z0-9_]*)
@@ -31,58 +40,60 @@ tableType                               ({primtiveType}{bl}{openSquareBrackets}{
 {bl}                                    /* pas d'actions */
 "\n"                                    line++;
 
-"public"                                {printf("KEYWORD \n");}
-"static"                                {printf("KEYWORD \n");}
-"class"                                 {printf("KEYWORD \n");}
-"void"                                  {printf("KEYWORD \n");}
-"main"                                  {printf("KEYWORD \n");}
-"extends"                               {printf("KEYWORD \n");}
-"return"                                {printf("KEYWORD \n");}
-"System.out.println"                    {printf("KEYWORD \n");}
-"length"                                {printf("KEYWORD \n");}
-"this"                                  {printf("KEYWORD \n");}
-"new"                                   {printf("KEYWORD \n");}
-
-"if"                                    {printf("STATEMENT \n");}
-"else"                                  {printf("STATEMENT \n");}
-"while"                                 {printf("STATEMENT \n");}
-
-"int"                                   {printf("DATA TYPE \n");}
-"String"                                {printf("DATA TYPE \n");}
-{dataType}                              {printf("DATA TYPE \n");}
-
-{openParentheses}                       {printf("OPEN PARANTHESES \n");}
-{closeParentheses}                      {printf("CLOSE PARANTHESES \n");}
-{openSquareBrackets}                    {printf("OPEN SQUARE BRACKETS \n");}
-{closeSquareBrackets}                   {printf("CLOSE SQUARE BRACKETS \n");}
-{openBraces}                            {printf("OPEN BRACES \n");}
-{closeBraces}                           {printf("CLOSE BRACES \n");}
-
-"&&"                                    {printf("LOGICAL OPERATOR: \n");}
-"||"                                    {printf("LOGICAL OPERATOR: \n");}
-
-"."                                     {printf("PUNCTUATION: \n");}
-";"                                     {printf("SEMI COL: \n");}
-","                                     {printf("COL: \n");}
 
 
-"+"                                     {printf("ARITH OPERATOR: \n");}
-"-"                                     {printf("ARITH OPERATOR: \n");}
-"*"                                     {printf("ARITH OPERATOR: \n");}
-"!"                                     {printf("ARITH OPERATOR: \n");}
-"="                                     {printf("ASSIGNMENT OPERATOR: \n");}
-"\/"                                    {printf("ARITH OPERATOR: \n");}
+"public"                                { return PUBLIC;            }
+"static"                                { return STATIC;            }
+"class"                                 { return CLASS;             }
+"void"                                  { return VOID;              }
+"main"                                  { return MAIN;              }
+"extends"                               { return EXTENDS;           }
+"return"                                { return RETURN;            }
+"System.out.println"                    { return SOP;               }
+"length"                                { return LENGTH;            }
+"this"                                  { return THIS;              }
+"new"                                   { return NEW;               }
 
-"<"|">"|"<="|">="|"=="|"!="             {printf("COMP OPERATOR: \n");}
+"if"                                    { return IF;                }
+"else"                                  { return ELSE;              }
+"while"                                 { return WHILE;             }
+
+"int"                                   { return INTEGER;           }
+"String"                                { return STRING;            }
+{dataType}                              { return DATATYPE;          }
+
+{openParentheses}                       { return OPENPARENT;        }
+{closeParentheses}                      { return CLOSEPARENT;       }
+{openSquareBrackets}                    { return OPENSQRBRACK;      }
+{closeSquareBrackets}                   { return CLOSESQRBRACK;     }
+{openBraces}                            { return OPENBRAC;          }
+{closeBraces}                           { return CLOSEBRAC;         }
+
+"&&"                                    { return AND;               }
+"||"                                    { return OR;                }
+
+"."                                     { return DOT;               }
+";"                                     { return SEMICOLON;         }
+","                                     { return COMMA;             }
+"\""                                    { return DOUBLEQUOTE;       }
+"\'"                                    { return SINGLEQUOTE;       }
+
+"+"                                     { return PLUS;              }
+"-"                                     { return MINUS;             }
+"*"                                     { return MULTIPLY;          }
+"!"                                     { return NOT;               }
+"="                                     { return EQUAL;             }
+"\/"                                    { return DIV;               }
+
+"<"|">"|"<="|">="|"=="|"!="             { return COMPOP;            }
 
 
 
-{booleanLiteral}                        {printf("BOOL LITERAL: \n");}
-{integerLiteral}                        {printf("INTEGER LITERAL \n");}
-{identifier}                            {printf("IDENTIFIER \n");}
+{booleanLiteral}                        { return BOOLVALUE;         }
+{integerLiteral}                        { return INTEGERVALUE;      }
+{identifier}                            { return IDENT;             }
 {illegalIdentifier}                     { printf("\nLEXICAL ERROR on character %d (line %d): Illegal Identifier\n\n", yytext[0], line);   }
 
-\/\/.*                                  {   /* skip */   }
 
 "/*"                                    {
                                              
@@ -108,13 +119,6 @@ tableType                               ({primtiveType}{bl}{openSquareBrackets}{
 
 
 %%
-
-int main(int argc, char *argv[])
-{
-     yyin = fopen(argv[1], "r");
-     yylex();
-     fclose(yyin);
-}
 
 int yywrap()
 {
